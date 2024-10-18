@@ -24,16 +24,9 @@ public class FileHandler {
     }
 
     public static boolean isValidCustomerData(String[] parts) {
-        if (parts.length != 3) {
-            return false;
-        }
-
-        String personalNumber = parts[0].trim();
-        String name = parts[1].trim();
-        String dateString = parts[2].trim();
-
-        return personalNumber.matches("\\d{10}") &&
-                name.matches("[a-zA-Z ]+") &&
-                dateString.matches("\\d{4}-\\d{2}-\\d{2}");
+        return parts.length == 3 &&
+                parts[0].trim().matches("\\d{10}") &&
+                !parts[1].trim().isEmpty() &&
+                parts[2].trim().matches("\\d{4}-\\d{2}-\\d{2}");
     }
 }

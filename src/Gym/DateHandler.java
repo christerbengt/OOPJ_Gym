@@ -9,7 +9,6 @@ public class DateHandler {
     }
 
     public boolean withinYear(LocalDate date) {
-        LocalDate oneYearAgo = LocalDate.now().minusYears(1);
-        return date.isAfter(oneYearAgo);
+        return date.isAfter(LocalDate.now().minusYears(1));
     }
 }

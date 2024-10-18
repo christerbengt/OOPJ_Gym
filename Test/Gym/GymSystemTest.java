@@ -9,8 +9,10 @@ import java.io.ByteArrayInputStream;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.List;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,19 +28,29 @@ public class GymSystemTest {
 
     @Test
     public void testReadCustomerFile() throws Exception {
-        Path customerFile = tempDir.resolve("testCustomers.txt");
-        Files.writeString(customerFile, "1234567890, John Doe, 2023-01-01\n8765432109, Jane Doe, 2022-06-01");
-        gymSystem.setCustomerFile(customerFile.toString());
-
+        GymSystem gymSystem = new GymSystem();
 
         // Read the file and test the result
         List<Customer> customers = gymSystem.readCustomerFile();
 
-        assertEquals(2, customers.size());
-        assertEquals("John Doe", customers.get(0).getName());
-        assertEquals("8765432109", customers.get(1).getPersonalNumber());
-        assertEquals(customerFile.toString(), gymSystem.getCustomerFile());
+        System.out.println("Number of customers read: " + customers.size());
+        for (Customer customer : customers) {
+            System.out.println("Customer: " + customer.getName() + ", " + customer.getPersonalNumber());
+        }
 
+        assertEquals(14, customers.size(), "Should read 14 customers from the file");
+
+        // Test the first customer
+        Customer firstCustomer = customers.get(0);
+        assertEquals("7703021234", firstCustomer.getPersonalNumber());
+        assertEquals("Alhambra Aromes", firstCustomer.getName());
+        assertEquals(LocalDate.parse("2024-07-01"), firstCustomer.getLatestPayment());
+
+        // Test the last customer
+        Customer lastCustomer = customers.get(customers.size() - 1);
+        assertEquals("7805211234", lastCustomer.getPersonalNumber());
+        assertEquals("Nahema Ninsson", lastCustomer.getName());
+        assertEquals(LocalDate.parse("2024-08-04"), lastCustomer.getLatestPayment());
     }
 
     @Test
@@ -67,7 +79,7 @@ public class GymSystemTest {
         assertEquals("Nuvarande medlem", gymSystem.categorizeCustomer(currentMember));
 
         // Test with a customer whose payment is more than a year old
-        Customer  formerMember = new Customer("8765432109", "Jane Doe", LocalDate.now().minusYears(2));
+        Customer formerMember = new Customer("8765432109", "Jane Doe", LocalDate.now().minusYears(2));
         assertEquals("Ej nuvarande medlem", gymSystem.categorizeCustomer(formerMember));
     }
 
@@ -87,30 +99,46 @@ public class GymSystemTest {
         assertTrue(lines.get(0).contains("John Doe,1234567890," + LocalDate.now()));
         assertTrue(lines.get(0).contains(LocalDate.now().toString()));
     }
+
     @Test
     public void testMainMethod() throws Exception {
-        Path customerFile = tempDir.resolve("testCustomers.txt");
-        Files.writeString(customerFile, "1234567890, John Doe, " + LocalDate.now().minusMonths(6));
-        gymSystem.setCustomerFile(customerFile.toString());
-
-        Path trainingDataFile = tempDir.resolve("testTrainingData.txt");
-        gymSystem.setTrainingDataFile(trainingDataFile.toString());
-
-        String input = "John Doe\nq\n";
+        // Redirect System.in to provide input
+        String input = "7703021234\nq\n";
         System.setIn(new ByteArrayInputStream(input.getBytes()));
 
+        // Capture System.out to verify output
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
 
+        // Run the main method
         GymSystem.main(new String[]{});
 
+        // Get the captured output as a string
         String output = outContent.toString();
-        assertTrue(output.contains("Kund: John Doe"));
+        System.out.println("Test output: " + output);
+
+        // Verify the output contains expected information
+        assertTrue(output.contains("Välkommen till Best Gym Evers nya kundregister!"));
+        assertTrue(output.contains("Kund: Alhambra Aromes"));
+        assertTrue(output.contains("Personnummer: 7703021234"));
+        assertTrue(output.contains("Senaste betalning: 2024-07-01"));
         assertTrue(output.contains("Kategori: Nuvarande medlem"));
         assertTrue(output.contains("Träningsdata registrerad."));
 
+        // Verify training data was written to file
+        Path trainingDataFile = Paths.get("src/training_data.txt");
         List<String> trainingData = Files.readAllLines(trainingDataFile);
-        assertEquals(1, trainingData.size());
-        assertTrue(trainingData.get(0).contains("John Doe,1234567890," + LocalDate.now()));
+        boolean foundEntry = false;
+        for (String line : trainingData) {
+            if (line.contains("Alhambra Aromes,7703021234," + LocalDate.now())) {
+                foundEntry = true;
+                break;
+            }
+        }
+        assertTrue(foundEntry, "Training data should be recorded for Alhambra Aromes");
+
+        // Reset System.in and System.out
+        System.setIn(System.in);
+        System.setOut(System.out);
     }
 }

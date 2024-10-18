@@ -10,8 +10,8 @@ public class GymSystem {
     private FileHandler fileHandler = new FileHandler();
     private DateHandler dateHandler = new DateHandler();
 
-    private String customerFile = "register.txt";
-    private String trainingDataFile = "training_data.txt";
+    private String customerFile = "src/register.txt";
+    private String trainingDataFile = "src/training_data.txt";
 
     // Getters and setters for file paths
     public String getCustomerFile() {
@@ -32,18 +32,36 @@ public class GymSystem {
 
     public List<Customer> readCustomerFile() throws Exception {
         List<String> lines = fileHandler.readFromFile(customerFile);
-        for (String line : lines) {
-            String[] parts = line.split(", ");
-            if (FileHandler.isValidCustomerData(parts)) {
-                String personalNumber = parts[0].trim();
-                String name = parts[1].trim();
-                LocalDate latestPayment = LocalDate.parse(parts[2].trim());
-                customers.add(new Customer(personalNumber, name, latestPayment));
-            } else {
-                System.out.println("Invalid customer data: " + line);
+        System.out.println("Number of lines read from file: " + lines.size());
+
+        customers.clear();
+
+        for (int i = 0; i < lines.size(); i += 2) {
+            if (i + 1 < lines.size()) {
+                String customerLine = lines.get(i);
+                String dateLine = lines.get(i + 1);
+                System.out.println("Processing customer: " + customerLine);
+                System.out.println("Processing date: " + dateLine);
+
+                String[] parts = customerLine.split(", ");
+                if (isValidCustomerData(parts, dateLine)) {
+                    String personalNumber = parts[0].trim();
+                    String name = parts[1].trim();
+                    LocalDate latestPayment = LocalDate.parse(dateLine.trim());
+                    customers.add(new Customer(personalNumber, name, latestPayment));
+                } else {
+                    System.out.println("Invalid customer data: " + customerLine + " " + dateLine);
+                }
             }
         }
         return customers;
+    }
+
+    private boolean isValidCustomerData(String[] parts, String dateLine) {
+        return parts.length == 2 &&
+                parts[0].trim().matches("\\d{10}") &&
+                !parts[1].trim().isEmpty() &&
+                dateLine.trim().matches("\\d{4}-\\d{2}-\\d{2}");
     }
 
     public Customer findCustomer(String searchTerm) {
@@ -57,7 +75,7 @@ public class GymSystem {
         if (customer == null) {
             return null;
         }
-        return dateHandler.withinYear(customer.getLatestPayment()) ? "Nuvarande medlem" : "Ej medlem";
+        return dateHandler.withinYear(customer.getLatestPayment()) ? "Nuvarande medlem" : "Ej nuvarande medlem";
     }
 
     public void printTrainingData(Customer customer) throws Exception {
