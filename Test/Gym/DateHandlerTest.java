@@ -6,8 +6,10 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// Contains unit tests to verify correct handling of dates and time.
 public class DateHandlerTest {
 
+    // Tests calculateTimeDiff method to make sure it calculates the number of months between two dates correctly.
     @Test
     public void testCalculateTimeDiff() {
         LocalDate date1 = LocalDate.of(2023, 1, 1);
@@ -19,6 +21,7 @@ public class DateHandlerTest {
         assertEquals(6, months);
     }
 
+    // Tests if the withinYear method correctly identifies what dates are within and outside a year from the current date.
     @Test
     public void testWithinYear() {
         LocalDate thisDay = LocalDate.now();

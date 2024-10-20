@@ -6,8 +6,10 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// Unit tests to verify the correct creation and functionality of Customer objects.
 public class CustomerTest {
 
+    // Tests creation of a Customer object and ensures all fields are correctly set.
     @Test
     public void testCreateCustomer() {
         String personalNumber = "7502031234";

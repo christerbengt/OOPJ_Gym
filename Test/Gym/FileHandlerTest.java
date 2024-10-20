@@ -9,8 +9,10 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+// Test functionality of file reading and writing operations.
 public class FileHandlerTest {
 
+    // Tests readFromFile method ensuring it correctly reads data from file.
     @Test
     public void testReadFromFile() throws IOException {
         // Create a temporary file with test data
@@ -27,6 +29,7 @@ public class FileHandlerTest {
         Files.delete(tempFile);
     }
 
+    // Tests writeToFile method making sure it writes correctly to a file.
     @Test
     public void testWriteToFile() throws IOException {
         Path tempFile = Files.createTempFile("test", ".txt");

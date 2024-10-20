@@ -16,16 +16,19 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+// Test class for the GymSystem class.
 public class GymSystemTest {
     private GymSystem gymSystem;
     @TempDir
     Path tempDir;
 
+    // Set up a new GymSystem instance before each test.
     @BeforeEach
     public void setUp() {
         gymSystem = new GymSystem();
     }
 
+    // Tests the readCustomerFile method to make sure it reads and parses customer data correctly.
     @Test
     public void testReadCustomerFile() throws Exception {
         GymSystem gymSystem = new GymSystem();
@@ -53,6 +56,7 @@ public class GymSystemTest {
         assertEquals(LocalDate.parse("2024-08-04"), lastCustomer.getLatestPayment());
     }
 
+    // Tests that the findCustomer method finds customers by personal number or name.
     @Test
     public void testFindCustomer() throws Exception {
         gymSystem.customers.add(new Customer("1234567890", "John Doe", LocalDate.of(2023, 1, 1)));
@@ -72,6 +76,7 @@ public class GymSystemTest {
         assertNull(gymSystem.findCustomer("Non Existent"));
     }
 
+    // Tests the categorizeCustomer method, making sure it sorts them based on payment date.
     @Test
     public void testCategorizeCustomer() {
         // Test with a customer whose payment is within a year
@@ -83,6 +88,7 @@ public class GymSystemTest {
         assertEquals("Ej nuvarande medlem", gymSystem.categorizeCustomer(formerMember));
     }
 
+    // Tests printTrainingData method to make sure it writes training data to file correctly.
     @Test
     public void testPrintTrainingData() throws Exception {
         // Create a temporary file for training data
@@ -100,6 +106,7 @@ public class GymSystemTest {
         assertTrue(lines.get(0).contains(LocalDate.now().toString()));
     }
 
+    // Tests the main method to ensure the whole system works correctly in an integrated way.
     @Test
     public void testMainMethod() throws Exception {
         // Redirect System.in to provide input

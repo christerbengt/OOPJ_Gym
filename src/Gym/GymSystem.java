@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+// Main program class, handles customer data, file operations and user interactions.
 public class GymSystem {
     protected List<Customer> customers = new ArrayList<>();
     private FileHandler fileHandler = new FileHandler();
@@ -29,7 +30,7 @@ public class GymSystem {
     public void setTrainingDataFile(String trainingDataFile) {
         this.trainingDataFile = trainingDataFile;
     }
-
+    // Reads customer data from the file and stores it in the customers list.
     public List<Customer> readCustomerFile() throws Exception {
         List<String> lines = fileHandler.readFromFile(customerFile);
         System.out.println("Number of lines read from file: " + lines.size());
@@ -56,33 +57,33 @@ public class GymSystem {
         }
         return customers;
     }
-
+    // Validates the format of the customer data.
     private boolean isValidCustomerData(String[] parts, String dateLine) {
         return parts.length == 2 &&
                 parts[0].trim().matches("\\d{10}") &&
                 !parts[1].trim().isEmpty() &&
                 dateLine.trim().matches("\\d{4}-\\d{2}-\\d{2}");
     }
-
+    // Finds a customer by personal number or name.
     public Customer findCustomer(String searchTerm) {
         return customers.stream()
                 .filter(c -> c.getPersonalNumber().equals(searchTerm) || c.getName().equalsIgnoreCase(searchTerm))
                 .findFirst()
                 .orElse(null);
     }
-
+    // Categorizes a customer based on latest payment.
     public String categorizeCustomer(Customer customer) {
         if (customer == null) {
             return null;
         }
         return dateHandler.withinYear(customer.getLatestPayment()) ? "Nuvarande medlem" : "Ej nuvarande medlem";
     }
-
+    // Saves a customer's training data to the training data file.
     public void printTrainingData(Customer customer) throws Exception {
         String data = String.format("%s,%s,%s", customer.getName(), customer.getPersonalNumber(), LocalDate.now());
         fileHandler.writeToFile(trainingDataFile, data);
     }
-
+    // Main method, starting point of the application.
     public static void main(String[] args) {
         GymSystem gymSystem = new GymSystem();
         Scanner scanner = new Scanner(System.in);
